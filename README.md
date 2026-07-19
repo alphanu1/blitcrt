@@ -15,13 +15,12 @@ host code:
                                    ->  Pi2SCART DAC  ->  15kHz CRT
 
 BlitCRT is the device (the FPGA video card). CRT1 is the wire protocol it
-speaks, the shared packet format also used by CRTPi. They are two different names on purpose.
+speaks, and is also used by CRTPi.
 
 ## The test card
 
-On power-up, and until the first frame arrives, BlitCRT paints a
-self-describing test card from the timing generator alone, with no host
-and no RAM:
+On power-up, and until the first frame arrives, BlitCRT paints a test card
+from the timing generator alone, with no host and no RAM:
 
 ![BlitCRT test card](docs/img/test-card.png)
 
@@ -37,11 +36,11 @@ CMD_FRAME.
 
 ### Simulated output
 
-The images below are rendered from the RTL: a testbench runs the
-video_timing_prog and splash_pattern modules and captures the RGB value
-the design drives at every active pixel of a frame, then writes it to a
-PNG. Three modes are shown; the readout tracks each resolution and its
-measured fractional refresh (59.94, 50.17) and pixel clock.
+These images are rendered from the RTL. A testbench runs the
+video_timing_prog and splash_pattern modules, captures the RGB value the
+design drives at every active pixel of a frame, and writes it to a PNG.
+Three modes are shown; the readout tracks each resolution and its measured
+fractional refresh (59.94, 50.17) and pixel clock.
 
 | 320x240 @ 60.01Hz | 256x224 @ 59.94Hz | 384x288 @ 50.17Hz |
 |---|---|---|
@@ -70,24 +69,21 @@ BlitCRT holds no frame queue. The host does not hand it whole frames to
 buffer and display later. Instead the host pushes damage rectangles over
 CRT1 (a CMD_FRAME with x/y/w/h and pixels), and BlitCRT writes those bytes
 into the live scanout buffer as they arrive. The timing generator reads
-that same buffer out to the CRT continuously. Writes land in the region
-being scanned out, in place; there is no separate present or flip step.
+that same buffer out to the CRT continuously, so writes land in the region
+being scanned out, in place, with no separate present or flip step.
 
-This has a few effects:
-
-- Latency is roughly the wire-transfer time (about 6.6ms over the sync
-  FIFO, under half a frame) rather than the one or two frames a buffered
-  path adds.
-- Partial updates are cheap. A game touching a quarter of the screen sends
-  a quarter of the bytes; damage rectangles are part of the protocol.
-- The device is simple and deterministic: no reordering, no queue
-  management, no present step. Bytes in, pixels out.
+Latency is therefore roughly the wire-transfer time, about 6.6ms over the
+sync FIFO, which is under half a frame rather than the one or two frames a
+buffered path adds. Partial updates are cheap: a game touching a quarter
+of the screen sends a quarter of the bytes, since damage rectangles are
+part of the protocol. And there is no reordering or queue management to
+reason about.
 
 A classic framebuffer card writes a full frame to off-screen memory, then
 a flip at vsync swaps it in, which adds at least one frame of latency and
-needs double-buffering. BlitCRT does neither.
+needs double-buffering.
 
-## What's in the box
+## Source layout
 
     rtl/          Verilog source
       fb_top_v2.v         top level
@@ -107,8 +103,8 @@ needs double-buffering. BlitCRT does neither.
     integration/  MME4CRT reference backend
     docs/         VIDEOCARD_V2, QUARTUS_BUILD, PI2SCART_OUTPUT
 
-The generated Quartus project, with the two ALTPLL megafunctions wired in,
-ships separately as the "-wired" bundle.
+The -wired bundle is the same tree plus the generated Quartus project and
+the two ALTPLL megafunctions, so it compiles without regenerating IP.
 
 ## The CRT1 protocol (summary)
 
@@ -167,9 +163,9 @@ the header; wire the ribbon from those holes.
     vid_hs_n    19      PIN_R4    HSync
     vid_vs_n    20      PIN_T5    VSync
 
-Note the Pi2SCART's RGB pins are not in numeric order on its connector;
-each colour bit goes to a specific pin. See docs/PI2SCART_OUTPUT.md for the
-exact CN3 pin per bit.
+The Pi2SCART's RGB pins are not in numeric order on its connector; each
+colour bit goes to a specific pin. See docs/PI2SCART_OUTPUT.md for the CN3
+pin per bit.
 
 ### Host link, holes 21..32 (pick one mode)
 
@@ -203,7 +199,7 @@ an FT2232H at once. On the Pi2SCART side, do not wire its 5V pins (header
 
 ## Throughput
 
-The two host links differ by roughly 100x, which sets what each can do:
+The two host links differ by roughly 100x:
 
     link                 rate       320x240 4bpp frame   full 60Hz?
     UART 2Mbaud          0.2 MB/s   192 ms  (~5 fps)     no
@@ -232,7 +228,7 @@ option. Details in docs/VIDEOCARD_V2.md.
 3. Add an SDC (create_clock 50MHz, derive_pll_clocks; quartus/fb_top.sdc).
 4. Start Compilation, then flash the .sof over JTAG.
 5. Power on. The test card appears on the CRT with no host attached, which
-   exercises PLL lock, timing, the DAC, and the ribbon together.
+   covers PLL lock, timing, the DAC and the ribbon in one step.
 6. To test resolution switching from the PC (USE_UART=1): wire a
    USB-serial adapter's TX to hole 21 and GND to board GND, then run
    host/crt1_uart_test.py PORT <modeline>. This confirms mode switching
