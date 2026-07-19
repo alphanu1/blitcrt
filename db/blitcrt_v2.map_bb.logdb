@@ -1,0 +1,5 @@
+v1
+DSP_BALANCING_IMPLEMENTATION,DSP_BLOCKS,lpm_mult:Mult0|mult_rct:auto_generated|mac_out2,
+DSP_BALANCING_IMPLEMENTATION,DSP_BLOCKS,mode_meter:u_meter|lpm_mult:Mult1|mult_ogt:auto_generated|mac_out2,
+DSP_BALANCING_IMPLEMENTATION,DSP_BLOCKS,mode_meter:u_meter|lpm_mult:Mult0|mult_vct:auto_generated|mac_out2,
+DSP_BALANCING_IMPLEMENTATION,DSP_BLOCKS,mode_meter:u_meter|lpm_mult:Mult1|mult_ogt:auto_generated|mac_out4,

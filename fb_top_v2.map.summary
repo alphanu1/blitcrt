@@ -1,14 +1,14 @@
-Analysis & Synthesis Status : Failed - Sun Jul 19 15:47:45 2026
+Analysis & Synthesis Status : Successful - Sun Jul 19 15:59:53 2026
 Quartus Prime Version : 24.1std.0 Build 1077 03/04/2025 SC Lite Edition
 Revision Name : fb_top_v2
 Top-level Entity Name : fb_top_v2
 Family : Cyclone IV E
-Total logic elements : N/A until Partition Merge
-    Total combinational functions : N/A until Partition Merge
-    Dedicated logic registers : N/A until Partition Merge
-Total registers : N/A until Partition Merge
-Total pins : N/A until Partition Merge
-Total virtual pins : N/A until Partition Merge
-Total memory bits : N/A until Partition Merge
-Embedded Multiplier 9-bit elements : N/A until Partition Merge
-Total PLLs : N/A until Partition Merge
+Total logic elements : 4,124
+    Total combinational functions : 3,300
+    Dedicated logic registers : 1,423
+Total registers : 1423
+Total pins : 35
+Total virtual pins : 0
+Total memory bits : 262,288
+Embedded Multiplier 9-bit elements : 8
+Total PLLs : 1

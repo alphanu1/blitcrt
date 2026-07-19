@@ -1,0 +1,45 @@
+
+State Machine - |fb_top_v2|pll_ctl:u_pllctl|st
+Name st.S_WAIT st.S_GO st.S_B st.S_O st.S_L st.S_H st.S_IDLE 
+st.S_IDLE 0 0 0 0 0 0 0 
+st.S_H 0 0 0 0 0 1 1 
+st.S_L 0 0 0 0 1 0 1 
+st.S_O 0 0 0 1 0 0 1 
+st.S_B 0 0 1 0 0 0 1 
+st.S_GO 0 1 0 0 0 0 1 
+st.S_WAIT 1 0 0 0 0 0 1 
+
+State Machine - |fb_top_v2|mode_meter:u_meter|st
+Name st.S_DONE_P st.S_LOAD_P st.S_DONE_V st.S_DIV st.S_LOAD_V st.S_IDLE 
+st.S_IDLE 0 0 0 0 0 0 
+st.S_LOAD_V 0 0 0 0 1 1 
+st.S_DIV 0 0 0 1 0 1 
+st.S_DONE_V 0 0 1 0 0 1 
+st.S_LOAD_P 0 1 0 0 0 1 
+st.S_DONE_P 1 0 0 0 0 1 
+
+State Machine - |fb_top_v2|crt1_ft245:u_crt1|st
+Name st.S_REPLY st.S_PAYLOAD st.S_HDR st.S_MAGIC 
+st.S_MAGIC 0 0 0 0 
+st.S_HDR 0 0 1 1 
+st.S_PAYLOAD 0 1 0 1 
+st.S_REPLY 1 0 0 1 
+
+State Machine - |fb_top_v2|uart_rx:u_uart|state
+Name state.S_STOP state.S_DATA state.S_START state.S_IDLE 
+state.S_IDLE 0 0 0 0 
+state.S_START 0 0 1 1 
+state.S_DATA 0 1 0 1 
+state.S_STOP 1 0 0 1 
+
+State Machine - |fb_top_v2|ft245_tx:u_tx|state
+Name state.S_IDLE state.S_WR_HIGH state.S_WR_LOW 
+state.S_IDLE 0 0 0 
+state.S_WR_LOW 1 0 1 
+state.S_WR_HIGH 1 1 0 
+
+State Machine - |fb_top_v2|ft245_rx:u_rx|state
+Name state.S_IDLE state.S_RD_HIGH state.S_RD_LOW 
+state.S_IDLE 0 0 0 
+state.S_RD_LOW 1 0 1 
+state.S_RD_HIGH 1 1 0 

@@ -1,0 +1,149 @@
+{
+	"partitions" : [
+		{
+			"name" : "Top",
+			"pins" : [
+				{
+					"name" : "ft_rd_n",
+					"strict" : false
+				},
+				{
+					"name" : "ft_wr_n",
+					"strict" : false
+				},
+				{
+					"name" : "vid_r6[0]",
+					"strict" : false
+				},
+				{
+					"name" : "vid_r6[1]",
+					"strict" : false
+				},
+				{
+					"name" : "vid_r6[2]",
+					"strict" : false
+				},
+				{
+					"name" : "vid_r6[3]",
+					"strict" : false
+				},
+				{
+					"name" : "vid_r6[4]",
+					"strict" : false
+				},
+				{
+					"name" : "vid_r6[5]",
+					"strict" : false
+				},
+				{
+					"name" : "vid_g6[0]",
+					"strict" : false
+				},
+				{
+					"name" : "vid_g6[1]",
+					"strict" : false
+				},
+				{
+					"name" : "vid_g6[2]",
+					"strict" : false
+				},
+				{
+					"name" : "vid_g6[3]",
+					"strict" : false
+				},
+				{
+					"name" : "vid_g6[4]",
+					"strict" : false
+				},
+				{
+					"name" : "vid_g6[5]",
+					"strict" : false
+				},
+				{
+					"name" : "vid_b6[0]",
+					"strict" : false
+				},
+				{
+					"name" : "vid_b6[1]",
+					"strict" : false
+				},
+				{
+					"name" : "vid_b6[2]",
+					"strict" : false
+				},
+				{
+					"name" : "vid_b6[3]",
+					"strict" : false
+				},
+				{
+					"name" : "vid_b6[4]",
+					"strict" : false
+				},
+				{
+					"name" : "vid_b6[5]",
+					"strict" : false
+				},
+				{
+					"name" : "vid_hs_n",
+					"strict" : false
+				},
+				{
+					"name" : "vid_vs_n",
+					"strict" : false
+				},
+				{
+					"name" : "ft_data[0]",
+					"strict" : false
+				},
+				{
+					"name" : "ft_data[1]",
+					"strict" : false
+				},
+				{
+					"name" : "ft_data[2]",
+					"strict" : false
+				},
+				{
+					"name" : "ft_data[3]",
+					"strict" : false
+				},
+				{
+					"name" : "ft_data[4]",
+					"strict" : false
+				},
+				{
+					"name" : "ft_data[5]",
+					"strict" : false
+				},
+				{
+					"name" : "ft_data[6]",
+					"strict" : false
+				},
+				{
+					"name" : "ft_data[7]",
+					"strict" : false
+				},
+				{
+					"name" : "clk50",
+					"strict" : false
+				},
+				{
+					"name" : "rst_n",
+					"strict" : false
+				},
+				{
+					"name" : "ft_rxf_n",
+					"strict" : false
+				},
+				{
+					"name" : "ft_txe_n",
+					"strict" : false
+				},
+				{
+					"name" : "uart_rx_pin",
+					"strict" : false
+				}
+			]
+		}
+	]
+}

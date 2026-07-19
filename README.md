@@ -73,7 +73,7 @@ BlitCRT deliberately does neither.
       video_timing_prog.v runtime-programmable timing generator
       framebuffer.v       4bpp dual-clock line/scanout buffer
       palette.v           16 x RGB444 lookup
-      splash_pattern.v    power-on test card (bars + border)
+      splash_pattern.v    test card (bars + border + res/Hz/clock readout)
       pll_ctl.v           runtime pixel-clock reconfiguration sequencer
     sim/          testbenches (iverilog) -- all pass
     quartus/      pins_pi2scart.tcl, SDC, templates

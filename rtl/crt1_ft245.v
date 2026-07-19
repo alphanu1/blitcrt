@@ -63,7 +63,9 @@ module crt1_ft245 #(
     // palette write
     output reg         pal_we,
     output reg [3:0]   pal_index,
-    output reg [11:0]  pal_rgb
+    output reg [11:0]  pal_rgb,
+    output reg [11:0]  frame_x,     // damage-rect origin x (from CMD_FRAME)
+    output reg [11:0]  frame_y      // damage-rect origin y
 );
 
     // ---- protocol constants (mirror protocol.h) ----
@@ -111,41 +113,41 @@ module crt1_ft245 #(
 
     task reply_status(input [15:0] code);
         begin
-            rbuf[0]=8'h43; rbuf[1]=8'h52; rbuf[2]=8'h54; rbuf[3]=8'h31; // magic
-            rbuf[4]=EVT_STATUS; rbuf[5]=8'h00;
-            rbuf[6]=seq[7:0]; rbuf[7]=seq[15:8];
-            rbuf[8]=8'd4; rbuf[9]=0; rbuf[10]=0; rbuf[11]=0;            // len=4
-            rbuf[12]=seq[7:0]; rbuf[13]=seq[15:8];
-            rbuf[14]=code[7:0]; rbuf[15]=code[15:8];
-            rlen = 6'd16; ridx = 6'd0;
+            rbuf[0] <=8'h43; rbuf[1] <=8'h52; rbuf[2] <=8'h54; rbuf[3] <=8'h31; // magic
+            rbuf[4] <=EVT_STATUS; rbuf[5] <=8'h00;
+            rbuf[6] <=seq[7:0]; rbuf[7] <=seq[15:8];
+            rbuf[8] <=8'd4; rbuf[9] <=0; rbuf[10] <=0; rbuf[11] <=0;            // len=4
+            rbuf[12] <=seq[7:0]; rbuf[13] <=seq[15:8];
+            rbuf[14] <=code[7:0]; rbuf[15] <=code[15:8];
+            rlen <= 6'd16; ridx <= 6'd0;
         end
     endtask
 
     task reply_mode_result;
         begin
-            rbuf[0]=8'h43; rbuf[1]=8'h52; rbuf[2]=8'h54; rbuf[3]=8'h31;
-            rbuf[4]=EVT_MODE_RESULT; rbuf[5]=8'h00;
-            rbuf[6]=seq[7:0]; rbuf[7]=seq[15:8];
-            rbuf[8]=8'd8; rbuf[9]=0; rbuf[10]=0; rbuf[11]=0;            // len=8
-            rbuf[12]=8'd0; rbuf[13]=8'd0;                               // ST_OK
-            rbuf[14]=8'd0; rbuf[15]=8'd0;                               // pad
-            rbuf[16]=achieved_pclk[7:0];  rbuf[17]=achieved_pclk[15:8];
-            rbuf[18]=achieved_pclk[23:16];rbuf[19]=achieved_pclk[31:24];
-            rlen = 6'd20; ridx = 6'd0;
+            rbuf[0] <=8'h43; rbuf[1] <=8'h52; rbuf[2] <=8'h54; rbuf[3] <=8'h31;
+            rbuf[4] <=EVT_MODE_RESULT; rbuf[5] <=8'h00;
+            rbuf[6] <=seq[7:0]; rbuf[7] <=seq[15:8];
+            rbuf[8] <=8'd8; rbuf[9] <=0; rbuf[10] <=0; rbuf[11] <=0;            // len=8
+            rbuf[12] <=8'd0; rbuf[13] <=8'd0;                               // ST_OK
+            rbuf[14] <=8'd0; rbuf[15] <=8'd0;                               // pad
+            rbuf[16] <=achieved_pclk[7:0];  rbuf[17] <=achieved_pclk[15:8];
+            rbuf[18] <=achieved_pclk[23:16];rbuf[19] <=achieved_pclk[31:24];
+            rlen <= 6'd20; ridx <= 6'd0;
         end
     endtask
 
     task reply_info;
         begin
-            rbuf[0]=8'h43; rbuf[1]=8'h52; rbuf[2]=8'h54; rbuf[3]=8'h31;
-            rbuf[4]=EVT_INFO; rbuf[5]=8'h00;
-            rbuf[6]=seq[7:0]; rbuf[7]=seq[15:8];
-            rbuf[8]=8'd8; rbuf[9]=0; rbuf[10]=0; rbuf[11]=0;
-            rbuf[12]=8'd2;  rbuf[13]=8'd0;                 // proto ver 2
-            rbuf[14]=8'd1;  rbuf[15]=8'd0;                 // impl: 1 = FPGA
-            rbuf[16]=MAX_W[7:0]; rbuf[17]={4'd0,MAX_W[11:8]};
-            rbuf[18]=MAX_H[7:0]; rbuf[19]={4'd0,MAX_H[11:8]};
-            rlen = 6'd20; ridx = 6'd0;
+            rbuf[0] <=8'h43; rbuf[1] <=8'h52; rbuf[2] <=8'h54; rbuf[3] <=8'h31;
+            rbuf[4] <=EVT_INFO; rbuf[5] <=8'h00;
+            rbuf[6] <=seq[7:0]; rbuf[7] <=seq[15:8];
+            rbuf[8] <=8'd8; rbuf[9] <=0; rbuf[10] <=0; rbuf[11] <=0;
+            rbuf[12] <=8'd2;  rbuf[13] <=8'd0;                 // proto ver 2
+            rbuf[14] <=8'd1;  rbuf[15] <=8'd0;                 // impl: 1 = FPGA
+            rbuf[16] <=MAX_W[7:0]; rbuf[17] <={4'd0,MAX_W[11:8]};
+            rbuf[18] <=MAX_H[7:0]; rbuf[19] <={4'd0,MAX_H[11:8]};
+            rlen <= 6'd20; ridx <= 6'd0;
         end
     endtask
 
@@ -166,6 +168,7 @@ module crt1_ft245 #(
             fb_we <= 1'b0; pal_we <= 1'b0;
             tx_valid <= 1'b0; rlen <= 6'd0; ridx <= 6'd0;
             pcnt <= 32'd0; in_frame_px <= 1'b0;
+            frame_x <= 12'd0; frame_y <= 12'd0;
         end else begin
             pll_req <= 1'b0;
             fb_we <= 1'b0;
@@ -219,6 +222,8 @@ module crt1_ft245 #(
                     if (pcnt == 32'd15) begin
                         fx <= {pay[1], pay[0]};   fy <= {pay[3],  pay[2]};
                         fw <= {pay[5], pay[4]};   fh <= {pay[7],  pay[6]};
+                        frame_x <= {pay[1][3:0], pay[0]};  // 12-bit origin
+                        frame_y <= {pay[3][3:0], pay[2]};
                         // NOTE frame_hdr is u32 fields; we accept the low
                         // u16 of each (dims never exceed 12 bits here) and
                         // require the high halves zero (host lib complies).
