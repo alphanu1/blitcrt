@@ -7,15 +7,16 @@ Author: Ben Templeman (alphanu1)
 
 BlitCRT turns a Cyclone IV FPGA (Waveshare CoreEP4CE10 on a DVK600) into a
 15kHz arcade-monitor video card driven over a USB FIFO. It speaks the CRT1
-protocol. That is the same wire protocol as its sibling CRTPi, so
-GroovyMAME and RetroArch (MME4CRT) via switchres drive either device with
-the same host code:
+protocol, the same wire protocol as CRTPi, the Raspberry Pi 4 version of
+this idea (github.com/alphanu1/rpi-video-card). GroovyMAME and RetroArch
+(MME4CRT) via switchres drive either device with the same host code:
 
     MME4CRT / switchres  ->  CRT1  ->  BlitCRT (FT2232H FIFO)
                                    ->  Pi2SCART DAC  ->  15kHz CRT
 
 BlitCRT is the device (the FPGA video card). CRT1 is the wire protocol,
-also used by CRTPi.
+which CRTPi speaks too. CRTPi does the same job on a Raspberry Pi 4
+instead of an FPGA; both present as a USB video card for 15kHz CRTs.
 
 ## The test card
 
@@ -112,7 +113,8 @@ command payload. Host to device: GET_INFO, SET_MODE (32-byte wire
 modeline, switchres position semantics), SET_PLL (m/n/c dividers computed
 host-side), FRAME (x/y/w/h damage rect and pixels), SET_PAL. Device to
 host: EVT_INFO, EVT_MODE_RESULT (achieved clock readback), EVT_STATUS.
-Full spec in docs/ and the shared CRTPi PROTOCOL.md.
+Full spec in docs/ here, and in CRTPi's docs/PROTOCOL.md
+(github.com/alphanu1/rpi-video-card), which defines the same wire format.
 
 ## Hardware I/O
 
