@@ -35,6 +35,37 @@ re-renders with updated numbers on each SET_MODE, so you can confirm every
 mode on the CRT without streaming a frame. It yields to live video the
 moment a real CMD_FRAME arrives.
 
+### Simulated output (real RTL, not mockups)
+
+The images below are rendered from the ACTUAL Verilog: a testbench runs
+the real video_timing_prog + splash_pattern modules, captures the RGB
+value the design drives at every active pixel of one full frame, and
+writes it to a PNG. So this is pixel-for-pixel what the FPGA outputs, at
+three different modes -- note the readout tracks each resolution AND its
+measured fractional refresh (59.94, 50.17, ...) and pixel clock:
+
+| 320x240 @ 60.01Hz | 256x224 @ 59.94Hz | 384x288 @ 50.17Hz |
+|---|---|---|
+| ![320x240](docs/img/sim-320x240.png) | ![256x224](docs/img/sim-256x224.png) | ![384x288](docs/img/sim-384x288.png) |
+
+Regenerate them any time with sim/tb_dump.v (see docs/VIDEOCARD_V2.md).
+
+### Simulation waveforms (real RTL timing)
+
+These are timing diagrams from the actual simulation (sim/tb_wave.v dumps a
+VCD of video_timing_prog + splash_pattern running at the real 6.4MHz pixel
+clock). They show the true signal behaviour, not an illustration.
+
+Scanline level -- data-enable, the RGB bus stepping through the bars, and
+the hsync pulse in blanking. One line is 63.6us, i.e. a 15.7kHz line rate:
+
+![scanline waveform](docs/img/wave-line.png)
+
+Frame level -- the dense hsync train (each pulse = one 63.6us line) with a
+single vsync pulse per frame. Vsync every 16.66ms = 60Hz:
+
+![frame waveform](docs/img/wave-frame.png)
+
 ## It's a blit streamer, not a framebuffer
 
 This is the core architectural idea and the reason BlitCRT is low-latency:
@@ -101,7 +132,7 @@ Full spec in docs/ and the shared CRTPi PROTOCOL.md.
 - **Host link (two options, selected by the USE_UART build parameter):**
     - `USE_UART=1` (default, **testing only**): CRT1 bytes over a plain
       USB-serial adapter (FTDI/CP2102/CH340 -- a cable you probably
-      already have) on a single pin (32I/Os_2 hole 21). ~3Mbaud = 0.3MB/s.
+      already have) on a single pin (32I/Os_2 hole 21). 2Mbaud = 0.2MB/s.
       **This is for bring-up and resolution-change testing, NOT for
       streaming video.** It sends a mode switch (SET_PLL+SET_MODE, ~0.65ms)
       and a static test frame perfectly, but a full frame takes 128ms
@@ -180,7 +211,7 @@ wire its 5V pins (Pi header 2/4) to any FPGA pin -- 3.3V I/O, 5V kills it.
 The two host links differ by ~100x, which decides what each can do:
 
     link                 rate       320x240 4bpp frame   full 60Hz?
-    UART 3Mbaud          0.3 MB/s   128 ms  (~8 fps)     no
+    UART 2Mbaud          0.2 MB/s   192 ms  (~5 fps)     no
     FT245 async          ~1 MB/s    38 ms   (~26 fps)    no (partial ok)
     FT245 sync FIFO      ~40 MB/s   ~1 ms                yes
 
