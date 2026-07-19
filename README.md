@@ -7,31 +7,31 @@ Author: Ben Templeman (alphanu1)
 
 BlitCRT turns a Cyclone IV FPGA (Waveshare CoreEP4CE10 on a DVK600) into a
 15kHz arcade-monitor video card driven over a USB FIFO. It speaks the CRT1
-protocol, the same wire protocol as its sibling CRTPi, so GroovyMAME and
-RetroArch (MME4CRT) via switchres can drive either device with the same
-host code:
+protocol. That is the same wire protocol as its sibling CRTPi, so
+GroovyMAME and RetroArch (MME4CRT) via switchres drive either device with
+the same host code:
 
     MME4CRT / switchres  ->  CRT1  ->  BlitCRT (FT2232H FIFO)
                                    ->  Pi2SCART DAC  ->  15kHz CRT
 
-BlitCRT is the device (the FPGA video card). CRT1 is the wire protocol it
-speaks, and is also used by CRTPi.
+BlitCRT is the device (the FPGA video card). CRT1 is the wire protocol,
+also used by CRTPi.
 
 ## The test card
 
 On power-up, and until the first frame arrives, BlitCRT paints a test card
-from the timing generator alone, with no host and no RAM:
+from the timing generator alone. No host, no RAM:
 
 ![BlitCRT test card](docs/img/test-card.png)
 
 It shows SMPTE colour bars, a 1px white border, and a two-line readout of
 the current resolution and the measured vertical refresh and pixel clock,
 e.g. `320x240` / `60.01HZ 6.400MHZ`. The refresh and clock are measured
-on-device against the 50MHz crystal (rtl/mode_meter.v) rather than taken
-from the host, so they reflect the achieved timing including PLL
-quantization. Switching resolutions over UART re-renders the card with
-updated numbers on each SET_MODE, so a mode can be confirmed on the CRT
-without streaming a frame. The card gives way to live video on the first
+on-device against the 50MHz crystal (rtl/mode_meter.v), not taken from the
+host. They reflect the achieved timing, including PLL quantization.
+Switching resolutions over UART re-renders the card with updated numbers
+on each SET_MODE. A mode can be confirmed on the CRT this way without ever
+streaming a frame. The card gives way to live video on the first
 CMD_FRAME.
 
 ### Simulated output
@@ -39,7 +39,7 @@ CMD_FRAME.
 These images are rendered from the RTL. A testbench runs the
 video_timing_prog and splash_pattern modules, captures the RGB value the
 design drives at every active pixel of a frame, and writes it to a PNG.
-Three modes are shown; the readout tracks each resolution and its measured
+Three modes are shown. The readout tracks each resolution and its measured
 fractional refresh (59.94, 50.17) and pixel clock.
 
 | 320x240 @ 60.01Hz | 256x224 @ 59.94Hz | 384x288 @ 50.17Hz |
@@ -50,16 +50,16 @@ Regenerate with sim/tb_dump.v (see docs/VIDEOCARD_V2.md).
 
 ### Simulation waveforms
 
-Timing diagrams from the same simulation (sim/tb_wave.v dumps a VCD of
-video_timing_prog and splash_pattern at the 6.4MHz pixel clock).
+Timing diagrams from the same simulation. sim/tb_wave.v dumps a VCD of
+video_timing_prog and splash_pattern at the 6.4MHz pixel clock.
 
 Scanline: data-enable, the RGB bus stepping through the bars, and the
-hsync pulse in blanking. One line is 63.6us (a 15.7kHz line rate).
+hsync pulse in blanking. One line is 63.6us, a 15.7kHz line rate.
 
 ![scanline waveform](docs/img/wave-line.png)
 
-Frame: the hsync train (one pulse per line) with a single vsync pulse per
-frame. Vsync is every 16.66ms (60Hz).
+Frame: the hsync train, one pulse per line, with a single vsync pulse per
+frame. Vsync is every 16.66ms, i.e. 60Hz.
 
 ![frame waveform](docs/img/wave-frame.png)
 
@@ -69,18 +69,17 @@ BlitCRT holds no frame queue. The host does not hand it whole frames to
 buffer and display later. Instead the host pushes damage rectangles over
 CRT1 (a CMD_FRAME with x/y/w/h and pixels), and BlitCRT writes those bytes
 into the live scanout buffer as they arrive. The timing generator reads
-that same buffer out to the CRT continuously, so writes land in the region
-being scanned out, in place, with no separate present or flip step.
+that same buffer out to the CRT continuously. Writes land in the region
+being scanned out, in place. There is no separate present or flip step.
 
-Latency is therefore roughly the wire-transfer time, about 6.6ms over the
-sync FIFO, which is under half a frame rather than the one or two frames a
-buffered path adds. Partial updates are cheap: a game touching a quarter
-of the screen sends a quarter of the bytes, since damage rectangles are
-part of the protocol. And there is no reordering or queue management to
-reason about.
+Latency is roughly the wire-transfer time, about 6.6ms over the sync FIFO.
+That is under half a frame, versus the one or two frames a buffered path
+adds. Partial updates are cheap. A game touching a quarter of the screen
+sends a quarter of the bytes, because damage rectangles are part of the
+protocol. There is no reordering or queue management to reason about.
 
 A classic framebuffer card writes a full frame to off-screen memory, then
-a flip at vsync swaps it in, which adds at least one frame of latency and
+a flip at vsync swaps it in. That adds at least one frame of latency and
 needs double-buffering.
 
 ## Source layout
@@ -103,8 +102,8 @@ needs double-buffering.
     integration/  MME4CRT reference backend
     docs/         VIDEOCARD_V2, QUARTUS_BUILD, PI2SCART_OUTPUT
 
-The -wired bundle is the same tree plus the generated Quartus project and
-the two ALTPLL megafunctions, so it compiles without regenerating IP.
+The -wired bundle adds the generated Quartus project and the two ALTPLL
+megafunctions to the same tree. It compiles without regenerating IP.
 
 ## The CRT1 protocol (summary)
 
@@ -125,19 +124,19 @@ Full spec in docs/ and the shared CRTPi PROTOCOL.md.
       (FTDI/CP2102/CH340) on one pin (32I/Os_2 hole 21), 2Mbaud = 0.2MB/s.
       This is for bring-up and resolution-change testing, not video
       streaming. A mode switch (SET_PLL+SET_MODE, ~0.65ms) and a static
-      test frame go through fine, but a full 320x240 4bpp frame takes
-      ~192ms (about 5fps), so it is not usable for live emulator output.
+      test frame go through fine. A full 320x240 4bpp frame takes ~192ms
+      (about 5fps), too slow for live emulator output.
     - USE_UART=0: FT2232H FT245 FIFO on holes 21..32. Async today
-      (~1MB/s); the sync FIFO (~40MB/s) is the path for full 60Hz frame
+      (~1MB/s). The sync FIFO (~40MB/s) is the path for full 60Hz frame
       streaming from MME4CRT.
-  Both feed the same packet engine; nothing downstream changes.
+  Both feed the same packet engine. Nothing downstream changes.
 - Clock: on-board 50MHz oscillator (PIN_E16). Reset on PIN_B16.
 
 ## Full pin mapping
 
-All signals land on the DVK600 32I/Os_2 bank (fed by the CoreEP4CE10 H_Up
-header, so the balls are exact). Hole numbers are the silkscreen labels on
-the header; wire the ribbon from those holes.
+All signals land on the DVK600 32I/Os_2 bank, which the CoreEP4CE10 H_Up
+header feeds straight through. Hole numbers below are the silkscreen labels
+on the header. Wire the ribbon from those holes.
 
 ### Video (always used), holes 1..20
 
@@ -163,8 +162,8 @@ the header; wire the ribbon from those holes.
     vid_hs_n    19      PIN_R4    HSync
     vid_vs_n    20      PIN_T5    VSync
 
-The Pi2SCART's RGB pins are not in numeric order on its connector; each
-colour bit goes to a specific pin. See docs/PI2SCART_OUTPUT.md for the CN3
+The Pi2SCART's RGB pins are not in numeric order on its connector. Each
+colour bit goes to a specific pin. docs/PI2SCART_OUTPUT.md lists the CN3
 pin per bit.
 
 ### Host link, holes 21..32 (pick one mode)
@@ -192,10 +191,10 @@ USE_UART=0, FT2232H FT245 FIFO (hole 21 is then ft_data[0], not uart):
 
     System: clk50 = PIN_E16 (on-board osc), rst_n = PIN_B16 (RESET key).
 
-Hole 21 is shared between uart_rx_pin and ft_data[0]; they are mutually
-exclusive (chosen by USE_UART), so do not connect a USB-serial adapter and
-an FT2232H at once. On the Pi2SCART side, do not wire its 5V pins (header
-2/4) to any FPGA pin; the I/O is 3.3V.
+Hole 21 is shared between uart_rx_pin and ft_data[0]. They are mutually
+exclusive, chosen by USE_UART. Do not connect a USB-serial adapter and an
+FT2232H at the same time. On the Pi2SCART side, never wire its 5V pins
+(header 2/4) to any FPGA pin. The I/O is 3.3V.
 
 ## Throughput
 
@@ -206,19 +205,19 @@ The two host links differ by roughly 100x:
     FT245 async          ~1 MB/s    38 ms   (~26 fps)    no (partial ok)
     FT245 sync FIFO      ~40 MB/s   ~1 ms                yes
 
-A mode change is small (SET_PLL+SET_MODE, ~196 bytes, 0.65ms over UART),
-so UART is fine for switching resolutions and painting a static frame.
-Live video needs whole frames at 60Hz, 2.3MB/s (4bpp) up to 13MB/s
-(RGB565), which only the FT2232H sync FIFO delivers. Async FT245 sits in
-between and suits partial-frame updates but not full-frame 60Hz.
+A mode change is small: SET_PLL+SET_MODE is ~196 bytes, 0.65ms over UART.
+That makes UART fine for switching resolutions and painting a static
+frame. Live video needs whole frames at 60Hz, 2.3MB/s (4bpp) up to 13MB/s
+(RGB565). Only the FT2232H sync FIFO delivers that. Async FT245 sits in
+between and suits partial-frame updates, not full-frame 60Hz.
 
 ## Clock accuracy
 
 PLL quantization is under 10.3ppm across the arcade clock battery. The
-reference oscillator's own tolerance dominates, so the suggested upgrade
-is a +/-1ppm 50MHz TCXO; the target frequency choice is under 1ppm either
-way (see host/ref_sweep.py). Exact synthesis via an Si5351A is a later
-option. Details in docs/VIDEOCARD_V2.md.
+reference oscillator's own tolerance dominates. The suggested upgrade is a
++/-1ppm 50MHz TCXO. The target frequency choice is under 1ppm either way
+(see host/ref_sweep.py). Exact synthesis via an Si5351A is a later option.
+Details in docs/VIDEOCARD_V2.md.
 
 ## Build and bring-up
 
@@ -227,17 +226,17 @@ option. Details in docs/VIDEOCARD_V2.md.
 2. `source quartus/pins_pi2scart.tcl` in the Tcl console.
 3. Add an SDC (create_clock 50MHz, derive_pll_clocks; quartus/fb_top.sdc).
 4. Start Compilation, then flash the .sof over JTAG.
-5. Power on. The test card appears on the CRT with no host attached, which
+5. Power on. The test card appears on the CRT with no host attached. That
    covers PLL lock, timing, the DAC and the ribbon in one step.
 6. To test resolution switching from the PC (USE_UART=1): wire a
    USB-serial adapter's TX to hole 21 and GND to board GND, then run
    host/crt1_uart_test.py PORT <modeline>. This confirms mode switching
-   and a painted frame; it is not fast enough for live video. For 60Hz
+   and a painted frame. It is not fast enough for live video. For 60Hz
    video, build with USE_UART=0 and use the FT2232H sync-FIFO path.
 
 ## Status
 
 RTL complete and simulated (testbenches for the UART and FT245 paths, the
-mode meter, and PLL reconfig). Megafunctions generated and wired; the top
+mode meter, and PLL reconfig). Megafunctions generated and wired. The top
 elaborates clean. Pins assigned. Remaining: full Quartus compile and
 hardware bring-up, then the sync-FIFO upgrade for full-rate 60Hz frames.
