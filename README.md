@@ -129,8 +129,9 @@ Full spec in docs/ here, and in CRTPi's docs/PROTOCOL.md
       test frame go through fine. A full 320x240 4bpp frame takes ~192ms
       (about 5fps), too slow for live emulator output.
     - USE_UART=0: FT2232H FT245 FIFO on holes 21..32. Async today
-      (~1MB/s). The sync FIFO (~40MB/s) is the path for full 60Hz frame
-      streaming from MME4CRT.
+      (~1MB/s), enough for 60Hz partial-frame updates from MME4CRT. The
+      sync FIFO (~40MB/s) adds headroom for full-frame 60Hz and, later,
+      direct-colour host feeds (RGB565/RGB888, see Future development).
   Both feed the same packet engine. Nothing downstream changes.
 - Clock: on-board 50MHz oscillator (PIN_E16). Reset on PIN_B16.
 
@@ -200,18 +201,24 @@ FT2232H at the same time. On the Pi2SCART side, never wire its 5V pins
 
 ## Throughput
 
-The two host links differ by roughly 100x:
+Frames are streamed in the native 4bpp packed format (a 16-colour palette
+index per pixel; the palette expands to the RGB666 DAC output). A 320x240
+frame is 38.4KB, so 60Hz needs 2.3MB/s. The links:
 
-    link                 rate       320x240 4bpp frame   full 60Hz?
+    link                 rate       320x240 4bpp frame   4bpp 60Hz full-frame?
     UART 2Mbaud          0.2 MB/s   192 ms  (~5 fps)     no
-    FT245 async          ~1 MB/s    38 ms   (~26 fps)    no (partial ok)
-    FT245 sync FIFO      ~40 MB/s   ~1 ms                yes
+    FT245 async          ~1 MB/s    38 ms   (~26 fps)    no, but partials fine
+    FT245 sync FIFO      ~40 MB/s   ~1 ms                yes, wide margin
 
 A mode change is small: SET_PLL+SET_MODE is ~196 bytes, 0.65ms over UART.
-That makes UART fine for switching resolutions and painting a static
-frame. Live video needs whole frames at 60Hz, 2.3MB/s (4bpp) up to 13MB/s
-(RGB565). Only the FT2232H sync FIFO delivers that. Async FT245 sits in
-between and suits partial-frame updates, not full-frame 60Hz.
+UART is therefore fine for switching resolutions and painting a static
+frame, but too slow for live video. The FT2232H sync FIFO carries full
+4bpp frames at 60Hz with margin to spare (2.3MB/s needed against ~40MB/s).
+Async FT245 (~1MB/s) handles partial-frame (damage-rect) updates at 60Hz
+and full frames at a reduced rate, but not full-frame 60Hz. Direct-colour
+host feeds raise the bar: RGB565 is 9.2MB/s and RGB888 18.4MB/s at 60Hz,
+both firmly in sync-FIFO territory (and gated on external RAM, see Future
+development). Output is RGB666 either way.
 
 ## Clock accuracy
 
@@ -236,9 +243,66 @@ Details in docs/VIDEOCARD_V2.md.
    and a painted frame. It is not fast enough for live video. For 60Hz
    video, build with USE_UART=0 and use the FT2232H sync-FIFO path.
 
+## Future development
+
+More simultaneous colours. The DAC output is already RGB666 (18-bit).
+Each pixel is currently a 4-bit index into a 16-entry palette. Only 16
+colours appear at once. A direct-colour mode stores full colour per pixel
+and drops that limit: each pixel holds RGB666 directly, or a host feed in
+RGB565/RGB888 reduced to RGB666 at output. The FT245 sync FIFO has the
+bandwidth. A direct-colour frame is 3 bytes/pixel: 13.8MB/s at 320x240
+60Hz, 19.9MB/s at 384x288, both under the ~40MB/s ceiling.
+
+What gates it is on-chip RAM. The scanout buffer is currently EP4CE10
+block RAM (~414 Kbit total). 320x240 at 4bpp is 300 Kbit and fits. A
+direct-colour frame at 3 bytes/pixel is 1800 Kbit (320x240) or 2650 Kbit
+(384x288). Both are well over budget and need external memory. The CoreEP4CE10
+has no onboard SDRAM. The fix is Waveshare's SDRAM Board (B) on the DVK600
+(H57V1262GTR, 8M x 16-bit = 16 MB), or an equivalent, plus an SDRAM
+controller and the clock-domain work to feed scanout from it. The
+controller is the work. Capacity is not a concern. A single frame is
+225 KB (320x240) or 324 KB (384x288), against 16 MB on the board, room for
+around 50 frames.
+
+Higher resolutions need the same external memory, and width triggers it
+before colour depth does. 640x480 60i is a valid 15kHz mode: it is two
+640x240 fields woven together at 60 fields per second. The line rate
+stays ~15.7kHz, the same as 320x240 240p, which is what lets a 15kHz CRT
+display it. The pixel clock roughly doubles to ~12.6MHz for the extra
+horizontal pixels, which is an easy PLL target, and the bandwidth is fine
+(4.6MB/s at 4bpp, 27.6MB/s direct-colour, both within the sync FIFO). The
+blocker is buffer RAM. A single 640-wide field at 4bpp is 600 Kbit,
+already over the ~414 Kbit on-chip budget. Any 640-wide mode needs SDRAM
+even at 4bpp and even interlaced. In SDRAM it is small: a 640x480 4bpp
+frame is 150 KB, direct RGB666 is 900 KB, against 16 MB on the board. The
+timing generator already takes arbitrary modelines. Interlace adds a field
+toggle in the vertical counter. The work is the SDRAM path, not the
+timing.
+
+Adding SDRAM does not turn BlitCRT into a framebuffer. The blit-streamer
+model is defined by the write path, not by where the pixels live: the host
+sends damage rectangles, the device writes them into the live scanout
+region, and scanout reads the same memory continuously, with no present or
+flip step. A single RGB666 frame in SDRAM keeps exactly that model and the
+same latency, just with full per-pixel colour. Double-buffering (450 KB,
+still a fraction of the board) is an option later if tearing on large fast
+updates becomes visible. It copies dirty regions rather than presenting a
+whole frame, and stays a blit streamer. A true framebuffer with a vsync
+flip would mean dropping the damage-rect model and the low-latency
+behaviour, and is not planned.
+
+The Pi2SCART DAC stays at RGB666 (6 bits per channel). A host sending
+RGB888 is truncated or dithered to RGB666 at output. True 8-bit-per-
+channel output would need a wider DAC than the Pi2SCART ladder.
+
+Other items: sync-FIFO FT2232H bring-up (EEPROM to 245 FIFO mode plus a
+clocked FIFO in fabric), and a +/-1ppm TCXO or Si5351A for exact clocks
+(see Clock accuracy).
+
 ## Status
 
 RTL complete and simulated (testbenches for the UART and FT245 paths, the
 mode meter, and PLL reconfig). Megafunctions generated and wired. The top
 elaborates clean. Pins assigned. Remaining: full Quartus compile and
-hardware bring-up, then the sync-FIFO upgrade for full-rate 60Hz frames.
+hardware bring-up, then the sync-FIFO upgrade for full-frame 60Hz headroom
+and, with external RAM, direct-colour modes (see Future development).
