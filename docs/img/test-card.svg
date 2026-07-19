@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="640" height="480" viewBox="0 0 320 240">
+  <!-- BlitCRT test card mockup: 320x240, SMPTE bars + border + readout -->
+  <!-- 8 colour bars, eighths of 320 = 40px each -->
+  <rect x="0"   y="0" width="40" height="240" fill="#ffffff"/>
+  <rect x="40"  y="0" width="40" height="240" fill="#ffff00"/>
+  <rect x="80"  y="0" width="40" height="240" fill="#00ffff"/>
+  <rect x="120" y="0" width="40" height="240" fill="#00ff00"/>
+  <rect x="160" y="0" width="40" height="240" fill="#ff00ff"/>
+  <rect x="200" y="0" width="40" height="240" fill="#ff0000"/>
+  <rect x="240" y="0" width="40" height="240" fill="#0000ff"/>
+  <rect x="280" y="0" width="40" height="240" fill="#000000"/>
+  <!-- 1px white border -->
+  <rect x="0" y="0" width="320" height="240" fill="none" stroke="#ffffff" stroke-width="1"/>
+  <!-- readout: white plates + black text, two rows near top-left -->
+  <rect x="15" y="15" width="74" height="9" fill="#ffffff"/>
+  <text x="16" y="22" font-family="monospace" font-size="8" font-weight="bold" fill="#000000">320x240</text>
+  <rect x="15" y="27" width="130" height="9" fill="#ffffff"/>
+  <text x="16" y="34" font-family="monospace" font-size="8" font-weight="bold" fill="#000000">60.01HZ 6.400MHZ</text>
+</svg>
