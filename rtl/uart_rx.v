@@ -9,20 +9,21 @@
 // Produces the IDENTICAL byte_data/byte_valid interface, so it drops
 // straight into crt1_ft245 with nothing downstream changed.
 //
-// 8 data bits, no parity, 1 stop bit (8N1). Oversamples the incoming
-// line at 16x and samples each bit at its centre. Default 3,000,000 baud
-// at 50MHz (divisor 50e6/3e6 = ~16.67 -> use CLKS_PER_BIT); override the
-// parameter for slower rates (e.g. 921600, 115200).
+// 8 data bits, no parity, 1 stop bit (8N1). Samples each bit at its
+// centre. Default 2,000,000 baud at 50MHz -- chosen because it is EXACT:
+// 50MHz / 25 = 2,000,000 with zero divisor error, and every common
+// USB-serial chip (FTDI, CP2102, CH340) generates 2Mbaud cleanly.
 //
-//   CLKS_PER_BIT = clk_freq / baud.  50MHz / 3Mbaud = 16 (nearest int).
-//   50MHz / 921600 = 54.  50MHz / 115200 = 434.
+//   CLKS_PER_BIT = clk_freq / baud.  Must be an integer for no error.
+//   50MHz / 2,000,000 = 25 (EXACT).   50MHz / 1,000,000 = 50 (EXACT).
+//   Avoid 3,000,000: 50e6/3e6 = 16.667, not integer -> ~4% error, breaks.
 //
 // Only rx is needed to receive commands; a matching uart_tx can be added
 // later for the reply path (mirrors ft245_tx's role) if serial replies
 // are wanted during bring-up.
 //=============================================================================
 module uart_rx #(
-    parameter integer CLKS_PER_BIT = 16      // 50MHz / 3,000,000 baud
+    parameter integer CLKS_PER_BIT = 25      // 50MHz / 2,000,000 baud (exact)
 ) (
     input  wire       clk,        // 50MHz
     input  wire       rst_n,
