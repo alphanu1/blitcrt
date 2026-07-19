@@ -228,21 +228,6 @@ reference oscillator's own tolerance dominates. The suggested upgrade is a
 (see host/ref_sweep.py). Exact synthesis via an Si5351A is a later option.
 Details in docs/VIDEOCARD_V2.md.
 
-## Build and bring-up
-
-1. Generate the two ALTPLL megafunctions in Quartus (docs/QUARTUS_BUILD.md),
-   or use the -wired bundle which already has them.
-2. `source quartus/pins_pi2scart.tcl` in the Tcl console.
-3. Add an SDC (create_clock 50MHz, derive_pll_clocks; quartus/fb_top.sdc).
-4. Start Compilation, then flash the .sof over JTAG.
-5. Power on. The test card appears on the CRT with no host attached. That
-   covers PLL lock, timing, the DAC and the ribbon in one step.
-6. To test resolution switching from the PC (USE_UART=1): wire a
-   USB-serial adapter's TX to hole 21 and GND to board GND, then run
-   host/crt1_uart_test.py PORT <modeline>. This confirms mode switching
-   and a painted frame. It is not fast enough for live video. For 60Hz
-   video, build with USE_UART=0 and use the FT2232H sync-FIFO path.
-
 ## Future development
 
 More simultaneous colours. The DAC output is already RGB666 (18-bit).
