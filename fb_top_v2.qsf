@@ -133,5 +133,5 @@ set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to ft_rxf_n
 set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to ft_txe_n
 set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to ft_rd_n
 set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to ft_wr_n
-set_location_assignment PIN_R3 -to uart_rx_pin
+set_location_assignment PIN_F11 -to uart_rx_pin
 set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to uart_rx_pin
