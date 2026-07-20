@@ -123,16 +123,18 @@ Full spec in docs/ here, and in CRTPi's docs/PROTOCOL.md
   pin/ball/ribbon map and the 5V safety note.
 - Host link, selected by the USE_UART build parameter:
     - USE_UART=1 (default): CRT1 bytes over a plain USB-serial adapter
-      (FTDI/CP2102/CH340) on one pin (32I/Os_2 hole 21), 2Mbaud = 0.2MB/s.
-      This is for bring-up and resolution-change testing, not video
-      streaming. A mode switch (SET_PLL+SET_MODE, ~0.65ms) and a static
-      test frame go through fine. A full 320x240 4bpp frame takes ~192ms
-      (about 5fps), too slow for live emulator output.
-    - USE_UART=0: FT2232H FT245 FIFO on holes 21..32. Async today
+      (FTDI/CP2102/CH340) on one pin (8I/Os_1 hole 1, PIN_F11), 2Mbaud =
+      0.2MB/s. This is for bring-up and resolution-change testing, not
+      video streaming. A mode switch (SET_PLL+SET_MODE, ~0.65ms) and a
+      static test frame go through fine. A full 320x240 4bpp frame takes
+      ~192ms (about 5fps), too slow for live emulator output.
+    - USE_UART=0: FT2232H FT245 FIFO on 32I/Os_2 holes 21..32. Async today
       (~1MB/s), enough for 60Hz partial-frame updates from MME4CRT. The
       sync FIFO (~40MB/s) adds headroom for full-frame 60Hz and, later,
       direct-colour host feeds (RGB565/RGB888, see Future development).
-  Both feed the same packet engine. Nothing downstream changes.
+  Both links are assigned to distinct pins, so a build can select either
+  by the USE_UART parameter without changing pins. They feed the same
+  packet engine. Nothing downstream changes.
 - Clock: on-board 50MHz oscillator (PIN_E16). Reset on PIN_B16.
 
 ## Full pin mapping
@@ -169,14 +171,19 @@ The Pi2SCART's RGB pins are not in numeric order on its connector. Each
 colour bit goes to a specific pin. docs/PI2SCART_OUTPUT.md lists the CN3
 pin per bit.
 
-### Host link, holes 21..32 (pick one mode)
+### Host links (both assigned; USE_UART selects which is active)
 
-USE_UART=1 (default), one wire from a USB-serial adapter:
+The UART and the FT245 FIFO are on separate pins. One build can pick
+either link with the USE_UART parameter, with no pin change. Wire only the
+one the build uses.
 
-    signal        hole   EP4CE10   wire to
-    uart_rx_pin   21      PIN_R3    USB-serial TX (plus GND to board GND)
+UART (USE_UART=1 default), one wire from a USB-serial adapter, on its own
+pin outside the 32I/Os_2 bank:
 
-USE_UART=0, FT2232H FT245 FIFO (hole 21 is then ft_data[0], not uart):
+    signal        header/hole      EP4CE10   wire to
+    uart_rx_pin   8I/Os_1 hole 1   PIN_F11   USB-serial TX (plus GND to board GND)
+
+FT245 FIFO (USE_UART=0), 32I/Os_2 holes 21..32:
 
     signal      hole   EP4CE10   FT2232H (channel A, BDBUS)
     ft_data[0]  21      PIN_R3    D0
@@ -194,9 +201,9 @@ USE_UART=0, FT2232H FT245 FIFO (hole 21 is then ft_data[0], not uart):
 
     System: clk50 = PIN_E16 (on-board osc), rst_n = PIN_B16 (RESET key).
 
-Hole 21 is shared between uart_rx_pin and ft_data[0]. They are mutually
-exclusive, chosen by USE_UART. Do not connect a USB-serial adapter and an
-FT2232H at the same time. On the Pi2SCART side, never wire its 5V pins
+The UART now has its own pin (PIN_F11) and no longer shares a hole with
+ft_data[0]. Still run one link at a time: do not connect a USB-serial adapter
+and an FT2232H together. On the Pi2SCART side, never wire its 5V pins
 (header 2/4) to any FPGA pin. The I/O is 3.3V.
 
 ## Throughput
@@ -227,6 +234,22 @@ reference oscillator's own tolerance dominates. The suggested upgrade is a
 +/-1ppm 50MHz TCXO. The target frequency choice is under 1ppm either way
 (see host/ref_sweep.py). Exact synthesis via an Si5351A is a later option.
 Details in docs/VIDEOCARD_V2.md.
+
+## Build and bring-up
+
+1. Generate the two ALTPLL megafunctions in Quartus (docs/QUARTUS_BUILD.md),
+   or use the -wired bundle which already has them.
+2. `source quartus/pins_pi2scart.tcl` in the Tcl console.
+3. Add an SDC (create_clock 50MHz, derive_pll_clocks; quartus/fb_top.sdc).
+4. Start Compilation, then flash the .sof over JTAG.
+5. Power on. The test card appears on the CRT with no host attached. That
+   covers PLL lock, timing, the DAC and the ribbon in one step.
+6. To test resolution switching from the PC (USE_UART=1): wire a
+   USB-serial adapter's TX to 8I/Os_1 hole 1 (PIN_F11) and GND to board
+   GND, then run host/crt1_uart_test.py PORT <modeline>. This confirms
+   mode switching and a painted frame. It is not fast enough for live
+   video. For 60Hz video, build with USE_UART=0 and use the FT2232H
+   sync-FIFO path.
 
 ## Future development
 

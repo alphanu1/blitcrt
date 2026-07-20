@@ -1,11 +1,11 @@
-Fitter Status : Successful - Sun Jul 19 16:00:05 2026
+Fitter Status : Successful - Mon Jul 20 10:57:19 2026
 Quartus Prime Version : 24.1std.0 Build 1077 03/04/2025 SC Lite Edition
 Revision Name : fb_top_v2
 Top-level Entity Name : fb_top_v2
 Family : Cyclone IV E
 Device : EP4CE10F17C8
 Timing Models : Final
-Total logic elements : 3,828 / 10,320 ( 37 % )
+Total logic elements : 3,836 / 10,320 ( 37 % )
     Total combinational functions : 3,305 / 10,320 ( 32 % )
     Dedicated logic registers : 1,423 / 10,320 ( 14 % )
 Total registers : 1423

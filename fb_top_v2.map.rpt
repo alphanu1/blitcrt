@@ -1,5 +1,5 @@
 Analysis & Synthesis report for fb_top_v2
-Sun Jul 19 15:59:53 2026
+Mon Jul 20 10:57:08 2026
 Quartus Prime Version 24.1std.0 Build 1077 03/04/2025 SC Lite Edition
 
 
@@ -110,7 +110,7 @@ on the Quartus Prime software download page.
 +--------------------------------------------------------------------------------------+
 ; Analysis & Synthesis Summary                                                         ;
 +------------------------------------+-------------------------------------------------+
-; Analysis & Synthesis Status        ; Successful - Sun Jul 19 15:59:53 2026           ;
+; Analysis & Synthesis Status        ; Successful - Mon Jul 20 10:57:08 2026           ;
 ; Quartus Prime Version              ; 24.1std.0 Build 1077 03/04/2025 SC Lite Edition ;
 ; Revision Name                      ; fb_top_v2                                       ;
 ; Top-level Entity Name              ; fb_top_v2                                       ;
@@ -233,7 +233,7 @@ on the Quartus Prime software download page.
 ;     Processor 6            ;   0.1%      ;
 ;     Processor 7            ;   0.1%      ;
 ;     Processor 8            ;   0.1%      ;
-;     Processors 9-16        ;   0.1%      ;
+;     Processors 9-16        ;   0.0%      ;
 +----------------------------+-------------+
 
 
@@ -2693,7 +2693,7 @@ Note: In order to hide this table in the UI and the text report file, please set
 +----------------+--------------+
 ; Partition Name ; Elapsed Time ;
 +----------------+--------------+
-; Top            ; 00:00:04     ;
+; Top            ; 00:00:03     ;
 +----------------+--------------+
 
 
@@ -2703,7 +2703,7 @@ Note: In order to hide this table in the UI and the text report file, please set
 Info: *******************************************************************
 Info: Running Quartus Prime Analysis & Synthesis
     Info: Version 24.1std.0 Build 1077 03/04/2025 SC Lite Edition
-    Info: Processing started: Sun Jul 19 15:59:44 2026
+    Info: Processing started: Mon Jul 20 10:57:00 2026
 Info: Command: quartus_map --read_settings_files=on --write_settings_files=off blitcrt_v2 -c fb_top_v2
 Warning (18236): Number of processors has not been specified which may cause overloading on shared machines.  Set the global assignment NUM_PARALLEL_PROCESSORS in your QSF to an appropriate value for best performance.
 Info (20030): Parallel compilation is enabled and will use 16 of the 32 processors detected
@@ -2714,7 +2714,7 @@ Info (12021): Found 1 design units, including 1 entities, in source file rtl/vid
 Info (12021): Found 1 design units, including 1 entities, in source file rtl/usb_protocol.v
     Info (12023): Found entity 1: usb_protocol File: /home/ben/source/blitcrt/rtl/usb_protocol.v Line: 20
 Info (12021): Found 1 design units, including 1 entities, in source file rtl/uart_rx.v
-    Info (12023): Found entity 1: uart_rx File: /home/ben/source/blitcrt/rtl/uart_rx.v Line: 24
+    Info (12023): Found entity 1: uart_rx File: /home/ben/source/blitcrt/rtl/uart_rx.v Line: 25
 Info (12021): Found 1 design units, including 1 entities, in source file rtl/splash_pattern.v
     Info (12023): Found entity 1: splash_pattern File: /home/ben/source/blitcrt/rtl/splash_pattern.v Line: 18
 Info (12021): Found 1 design units, including 1 entities, in source file rtl/pll_ctl.v
@@ -3200,9 +3200,9 @@ Info (21057): Implemented 4239 device resources after synthesis - the final reso
     Info (21065): Implemented 1 PLLs
     Info (21062): Implemented 8 DSP elements
 Info: Quartus Prime Analysis & Synthesis was successful. 0 errors, 29 warnings
-    Info: Peak virtual memory: 519 megabytes
-    Info: Processing ended: Sun Jul 19 15:59:53 2026
-    Info: Elapsed time: 00:00:09
+    Info: Peak virtual memory: 535 megabytes
+    Info: Processing ended: Mon Jul 20 10:57:08 2026
+    Info: Elapsed time: 00:00:08
     Info: Total CPU time (on all processors): 00:00:17
 
 
