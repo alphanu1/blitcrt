@@ -65,3 +65,73 @@ set_global_assignment -name VERILOG_FILE rtl/fb_top_v2.v
 set_global_assignment -name VERILOG_FILE rtl/fb_top.v
 set_global_assignment -name VERILOG_FILE rtl/crt1_ft245.v
 set_instance_assignment -name PARTITION_HIERARCHY root_partition -to | -section_id Top
+set_location_assignment PIN_E16 -to clk50
+set_location_assignment PIN_B16 -to rst_n
+set_location_assignment PIN_R11 -to vid_r6[5]
+set_location_assignment PIN_N12 -to vid_r6[4]
+set_location_assignment PIN_P11 -to vid_r6[3]
+set_location_assignment PIN_N11 -to vid_r6[2]
+set_location_assignment PIN_P9 -to vid_r6[1]
+set_location_assignment PIN_N9 -to vid_r6[0]
+set_location_assignment PIN_R10 -to vid_g6[5]
+set_location_assignment PIN_T11 -to vid_g6[4]
+set_location_assignment PIN_R9 -to vid_g6[3]
+set_location_assignment PIN_T10 -to vid_g6[2]
+set_location_assignment PIN_R8 -to vid_g6[1]
+set_location_assignment PIN_T9 -to vid_g6[0]
+set_location_assignment PIN_R7 -to vid_b6[5]
+set_location_assignment PIN_T8 -to vid_b6[4]
+set_location_assignment PIN_R6 -to vid_b6[3]
+set_location_assignment PIN_T7 -to vid_b6[2]
+set_location_assignment PIN_R5 -to vid_b6[1]
+set_location_assignment PIN_T6 -to vid_b6[0]
+set_location_assignment PIN_R4 -to vid_hs_n
+set_location_assignment PIN_T5 -to vid_vs_n
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to vid_r6[5]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to vid_r6[4]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to vid_r6[3]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to vid_r6[2]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to vid_r6[1]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to vid_r6[0]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to vid_g6[5]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to vid_g6[4]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to vid_g6[3]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to vid_g6[2]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to vid_g6[1]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to vid_g6[0]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to vid_b6[5]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to vid_b6[4]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to vid_b6[3]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to vid_b6[2]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to vid_b6[1]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to vid_b6[0]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to vid_hs_n
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to vid_vs_n
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to clk50
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to rst_n
+set_location_assignment PIN_R3 -to ft_data[0]
+set_location_assignment PIN_T4 -to ft_data[1]
+set_location_assignment PIN_M9 -to ft_data[2]
+set_location_assignment PIN_T3 -to ft_data[3]
+set_location_assignment PIN_K9 -to ft_data[4]
+set_location_assignment PIN_L9 -to ft_data[5]
+set_location_assignment PIN_L8 -to ft_data[6]
+set_location_assignment PIN_K8 -to ft_data[7]
+set_location_assignment PIN_M7 -to ft_rxf_n
+set_location_assignment PIN_M8 -to ft_txe_n
+set_location_assignment PIN_M6 -to ft_rd_n
+set_location_assignment PIN_L7 -to ft_wr_n
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to ft_data[0]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to ft_data[1]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to ft_data[2]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to ft_data[3]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to ft_data[4]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to ft_data[5]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to ft_data[6]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to ft_data[7]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to ft_rxf_n
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to ft_txe_n
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to ft_rd_n
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to ft_wr_n
+set_location_assignment PIN_R3 -to uart_rx_pin
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to uart_rx_pin
